@@ -1,4 +1,19 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Jmepromeneavecmesvalises_API.Data;
+using Jmepromeneavecmesvalises_API.Models;
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<Jmepromeneavecmesvalises_APIContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Jmepromeneavecmesvalises_APIContext") ??
+                         throw new InvalidOperationException(
+                             "Connection string 'Jmepromeneavecmesvalises_APIContext' not found."));
+    options.UseLazyLoadingProxies();
+});
+
+builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<Jmepromeneavecmesvalises_APIContext>();
 
 // Add services to the container.
 
@@ -17,6 +32,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
