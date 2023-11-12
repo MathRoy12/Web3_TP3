@@ -46,8 +46,14 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest,
                     new { Message = "L'utilisateur n'a pas pu être créé." });
             }
-
-            return Ok();
+            
+            LoginDTO loginDTO = new LoginDTO()
+            {
+                Username = DTO.Email,
+                Password = DTO.Password
+            };
+            
+            return await Login(loginDTO);
         }
 
         [HttpPost]

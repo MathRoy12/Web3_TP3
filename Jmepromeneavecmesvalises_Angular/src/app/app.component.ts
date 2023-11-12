@@ -9,10 +9,14 @@ import {Router} from "@angular/router";
 export class AppComponent {
     constructor(public router:Router) {
     }
-  SignUp(){
-    this.router.navigate(["/SignUp"])
+  async SignUp(){
+    await this.router.navigate(["/SignUp"])
   }
-  LogIn(){
-    this.router.navigate(["/LogIn"])
+  async LogIn(){
+    await this.router.navigate(["/LogIn"])
+  }
+
+  async NomClick(){
+      await this.router.navigate(["/Accueil"])
   }
 }

@@ -6,6 +6,9 @@ import {SignUpComponent} from './sign-up/sign-up.component';
 import {RouterModule} from "@angular/router";
 import {LogInComponent} from './log-in/log-in.component';
 import { AccueilComponent } from './accueil/accueil.component';
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import {ElInterceptor} from "./el-interceptor.interceptor";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -18,11 +21,18 @@ import { AccueilComponent } from './accueil/accueil.component';
     BrowserModule,
     RouterModule,
     RouterModule.forRoot([
-      {path: "SignUp", component: SignUpComponent},
-      {path: "LogIn", component: LogInComponent}
-    ])
+      {path: '', redirectTo: '/Accueil', pathMatch: 'full'},
+      {path: 'SignUp', component: SignUpComponent},
+      {path: 'LogIn', component: LogInComponent},
+      {path: 'Accueil', component: AccueilComponent},
+      {path: '**', redirectTo: '/Accueil', pathMatch: 'full'}
+    ]),
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {provide:HTTP_INTERCEPTORS, useClass: ElInterceptor, multi: true}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
