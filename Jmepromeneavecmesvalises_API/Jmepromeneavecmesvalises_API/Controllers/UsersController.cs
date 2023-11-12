@@ -50,6 +50,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             return Ok();
         }
 
+        [HttpPost]
         public async Task<ActionResult> Login(LoginDTO DTO)
         {
             User user = await UserManager.FindByNameAsync(DTO.Username);
