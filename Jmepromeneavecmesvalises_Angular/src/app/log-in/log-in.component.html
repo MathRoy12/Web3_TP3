@@ -4,13 +4,13 @@
     <form action="">
       <div class="formContent">
         <label for="Email">Email</label>
-        <input type="text" id="Email" name="Email">
+        <input [(ngModel)]="email" type="text" id="Email" name="Email">
       </div>
       <div class="formContent">
         <label for="Password">Password</label>
-        <input type="text" id="Password" name="Password">
+        <input [(ngModel)]="password" type="text" id="Password" name="Password">
       </div>
-      <button type="submit">submit</button>
+      <button (click)="Submit()">submit</button>
     </form>
   </div>
 </div>

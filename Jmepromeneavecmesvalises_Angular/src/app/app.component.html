@@ -1,9 +1,10 @@
 <header>
   <h3 (click)="NomClick()">Jmepromèneavecmesvalises.com</h3>
-  <div class="buttons">
+  <div *ngIf="localStorage['token'] == undefined" class="buttons">
     <button (click)="SignUp()">Sign up</button>
     <button (click)="LogIn()">Log in</button>
   </div>
+  <button *ngIf="localStorage['token'] != undefined" (click)="Disconnect()">Disconnect</button>
 </header>
 <main>
 <router-outlet></router-outlet>

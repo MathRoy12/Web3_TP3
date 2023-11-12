@@ -17,17 +17,17 @@ namespace Jmepromeneavecmesvalises_API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        readonly UserManager<User> UserManager;
+        private readonly UserManager<User> _userManager;
 
         public UsersController(UserManager<User> userManager)
         {
-            UserManager = userManager;
+            _userManager = userManager;
         }
 
         [HttpPost]
-        public async Task<ActionResult> Register(RegisterDTO DTO)
+        public async Task<ActionResult> Register(RegisterDTO dto)
         {
-            if (DTO.Password != DTO.ConfirmPassword)
+            if (dto.Password != dto.ConfirmPassword)
             {
                 return StatusCode(StatusCodes.Status400BadRequest,
                     new { Message = "Les mots de passe ne correspondent pas." });
@@ -35,11 +35,11 @@ namespace Jmepromeneavecmesvalises_API.Controllers
 
             User user = new User()
             {
-                UserName = DTO.Email,
-                Email = DTO.Email
+                UserName = dto.Email,
+                Email = dto.Email
             };
 
-            IdentityResult result = await UserManager.CreateAsync(user, DTO.Password);
+            IdentityResult result = await _userManager.CreateAsync(user, dto.Password);
 
             if (!result.Succeeded)
             {
@@ -49,20 +49,20 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             
             LoginDTO loginDTO = new LoginDTO()
             {
-                Username = DTO.Email,
-                Password = DTO.Password
+                Email = dto.Email,
+                Password = dto.Password
             };
             
             return await Login(loginDTO);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Login(LoginDTO DTO)
+        public async Task<ActionResult> Login(LoginDTO dto)
         {
-            User user = await UserManager.FindByNameAsync(DTO.Username);
-            if (user != null && await UserManager.CheckPasswordAsync(user, DTO.Password))
+            User? user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user != null && await _userManager.CheckPasswordAsync(user, dto.Password))
             {
-                IList<string> roles = await UserManager.GetRolesAsync(user);
+                IList<string> roles = await _userManager.GetRolesAsync(user);
                 List<Claim> authClaims = new List<Claim>();
                 foreach (string role in roles)
                 {
@@ -77,7 +77,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 JwtSecurityToken token = new JwtSecurityToken(
                     issuer: "https://localhost:7023",
                     audience: "https://localhost:4200",
-                    expires: DateTime.Now.AddHours(1),
+                    expires: DateTime.Now.AddHours(5),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
                 );

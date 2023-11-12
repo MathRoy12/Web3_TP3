@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 
 @Component({
@@ -6,17 +6,26 @@ import {Router} from "@angular/router";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-    constructor(public router:Router) {
-    }
-  async SignUp(){
+export class AppComponent{
+
+  constructor(public router: Router) {
+  }
+
+  async SignUp() {
     await this.router.navigate(["/SignUp"])
   }
-  async LogIn(){
+
+  async LogIn() {
     await this.router.navigate(["/LogIn"])
   }
 
-  async NomClick(){
-      await this.router.navigate(["/Accueil"])
+  async NomClick() {
+    await this.router.navigate(["/Accueil"])
   }
+
+  Disconnect(){
+    localStorage.removeItem("token");
+  }
+
+  protected readonly localStorage = localStorage;
 }
