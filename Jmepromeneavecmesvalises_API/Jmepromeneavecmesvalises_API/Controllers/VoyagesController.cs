@@ -12,44 +12,37 @@ namespace Jmepromeneavecmesvalises_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class VoyageController : ControllerBase
+    public class VoyagesController : ControllerBase
     {
         private readonly Jmepromeneavecmesvalises_APIContext _context;
 
-        public VoyageController(Jmepromeneavecmesvalises_APIContext context)
+        public VoyagesController(Jmepromeneavecmesvalises_APIContext context)
         {
             _context = context;
         }
 
-        // GET: api/Voyage
+        // GET: api/Voyages
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<VoyageDTO>>> GetVoyage()
+        public async Task<ActionResult<IEnumerable<Voyage>>> GetVoyage()
         {
             if (_context.Voyage == null)
             {
                 return NotFound();
             }
 
-            List<VoyageDTO> Data = new List<VoyageDTO>();
-
-            foreach (Voyage item in await _context.Voyage.ToListAsync())
-            {
-                Data.Add(new VoyageDTO(item));
-            }
-            
-            return Data;
+            return await _context.Voyage.ToListAsync();
         }
 
-        // GET: api/Voyage/5
+        // GET: api/Voyages/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<VoyageDTO>> GetVoyage(int id)
+        public async Task<ActionResult<Voyage>> GetVoyage(int id)
         {
             if (_context.Voyage == null)
             {
                 return NotFound();
             }
 
-            var voyage = new VoyageDTO(await _context.Voyage.FindAsync(id));
+            var voyage = await _context.Voyage.FindAsync(id);
 
             if (voyage == null)
             {
@@ -59,20 +52,17 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             return voyage;
         }
 
-        // PUT: api/Voyage/5
+        // PUT: api/Voyages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVoyage(int id, VoyageDTO Dto)
+        public async Task<IActionResult> PutVoyage(int id, Voyage voyage)
         {
-            if (id != Dto.Id)
+            if (id != voyage.Id)
             {
                 return BadRequest();
             }
 
-            Voyage voyage = new Voyage(Dto);
-            voyage.Proprietaires = _context.Users.Where(u => Dto.UserIDs.Contains(u.Id)).ToList();
-
-            _context.Voyage.Update(voyage);
+            _context.Entry(voyage).State = EntityState.Modified;
 
             try
             {
@@ -93,26 +83,23 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             return NoContent();
         }
 
-        // POST: api/Voyage
+        // POST: api/Voyages
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<VoyageDTO>> PostVoyage(VoyageDTO Dto)
+        public async Task<ActionResult<Voyage>> PostVoyage(Voyage voyage)
         {
             if (_context.Voyage == null)
             {
                 return Problem("Entity set 'Jmepromeneavecmesvalises_APIContext.Voyage'  is null.");
             }
-            
-            Voyage voyage = new Voyage(Dto);
-            voyage.Proprietaires = _context.Users.Where(u => Dto.UserIDs.Contains(u.Id)).ToList();
 
-            await _context.Voyage.AddAsync(voyage);
+            _context.Voyage.Add(voyage);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetVoyage", new { id = Dto.Id }, Dto);
+            return CreatedAtAction("GetVoyage", new { id = voyage.Id }, voyage);
         }
 
-        // DELETE: api/Voyage/5
+        // DELETE: api/Voyages/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVoyage(int id)
         {

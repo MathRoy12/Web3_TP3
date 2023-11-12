@@ -10,14 +10,6 @@ public class Voyage
     
     public string Img { get; set; }
     
+    [JsonIgnore]
     public virtual List<User> Proprietaires { get; set; }
-    
-    public Voyage(){}
-
-    public Voyage(VoyageDTO pDTO)
-    {
-        Id = pDTO.Id;
-        Destination = pDTO.Destination;
-        Img = pDTO.Img;
-    }
 }
