@@ -108,7 +108,7 @@ namespace Jmepromeneavecmesvalises_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Voyage");
+                    b.ToTable("Voyage", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -256,7 +256,7 @@ namespace Jmepromeneavecmesvalises_API.Migrations
 
                     b.HasIndex("VoyagesId");
 
-                    b.ToTable("UserVoyage");
+                    b.ToTable("UserVoyage", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
