@@ -1,28 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Jmepromeneavecmesvalises_API.Data;
 using Jmepromeneavecmesvalises_API.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Jmepromeneavecmesvalises_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class VoyagesController : ControllerBase
     {
         private readonly Jmepromeneavecmesvalises_APIContext _context;
+        private readonly UserManager<User> _userManager;
+        private User? user;
 
-        public VoyagesController(Jmepromeneavecmesvalises_APIContext context)
+        public VoyagesController(Jmepromeneavecmesvalises_APIContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Voyages
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Voyage>>> GetVoyage()
         {
             if (_context.Voyage == null)
@@ -30,7 +38,22 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 return NotFound();
             }
 
-            return await _context.Voyage.ToListAsync();
+            List<Voyage> data = new List<Voyage>();
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            user = await _context.Users.FindAsync(userId);
+
+            if (user != null)
+            {
+                data.InsertRange(0,
+                    await _context.Voyage.Where(v => v.Proprietaires.Contains(user) || v.IsPublic).ToListAsync());
+            }
+            else
+            {
+                data.InsertRange(0, await _context.Voyage.Where(v => v.IsPublic).ToListAsync());
+            }
+
+            return data;
         }
 
         // GET: api/Voyages/5
@@ -43,6 +66,15 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             }
 
             var voyage = await _context.Voyage.FindAsync(id);
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            user = await _context.Users.FindAsync(userId);
+
+            if (!voyage.Proprietaires.Contains(user))
+            {
+                return StatusCode(StatusCodes.Status400BadRequest,
+                    new { Message = "la voyage n'apartient pas a cette utilisateur" });
+            }
 
             if (voyage == null)
             {
@@ -92,7 +124,17 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             {
                 return Problem("Entity set 'Jmepromeneavecmesvalises_APIContext.Voyage'  is null.");
             }
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            user = await _context.Users.FindAsync(userId);
 
+            if (user == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest,
+                    new { Message = "Il n'y a aucun utilisateur de connecter" });
+            }
+            
+            voyage.Proprietaires.Add(user);
             _context.Voyage.Add(voyage);
             await _context.SaveChangesAsync();
 

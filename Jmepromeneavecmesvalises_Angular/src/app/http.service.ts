@@ -16,12 +16,10 @@ export class HttpService {
   async SignUp(DTO:RegisterDTO){
     let res = await lastValueFrom(this.http.post<any>(this.domain + 'api/Users/Register', DTO))
     localStorage["token"] = res.token;
-    return res
   }
 
   async LogIn(DTO:LoginDTO){
     let res = await lastValueFrom(this.http.post<any>(this.domain + 'api/Users/Login', DTO))
     localStorage["token"] = res.token;
-    return res
   }
 }

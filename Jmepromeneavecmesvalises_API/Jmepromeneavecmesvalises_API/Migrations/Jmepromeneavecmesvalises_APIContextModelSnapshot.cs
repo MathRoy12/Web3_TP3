@@ -106,9 +106,12 @@ namespace Jmepromeneavecmesvalises_API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Voyage", (string)null);
+                    b.ToTable("Voyage");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -256,7 +259,7 @@ namespace Jmepromeneavecmesvalises_API.Migrations
 
                     b.HasIndex("VoyagesId");
 
-                    b.ToTable("UserVoyage", (string)null);
+                    b.ToTable("UserVoyage");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
