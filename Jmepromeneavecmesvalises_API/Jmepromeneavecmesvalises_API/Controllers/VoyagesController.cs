@@ -31,14 +31,17 @@ namespace Jmepromeneavecmesvalises_API.Controllers
         // GET: api/Voyages
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Voyage>>> GetVoyage()
+        public async Task<ActionResult<IEnumerable<VoyageDTO>>> GetVoyage()
         {
             if (_context.Voyage == null)
             {
                 return NotFound();
             }
 
-            List<Voyage> data = new List<Voyage>();
+            List<VoyageDTO> data = await _context.Voyage
+                .Where(v => v.IsPublic)
+                .Select(v=>new VoyageDTO(v, false))
+                .ToListAsync();
             
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
@@ -46,11 +49,8 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             if (user != null)
             {
                 data.InsertRange(0,
-                    await _context.Voyage.Where(v => v.Proprietaires.Contains(user) || v.IsPublic).ToListAsync());
-            }
-            else
-            {
-                data.InsertRange(0, await _context.Voyage.Where(v => v.IsPublic).ToListAsync());
+                    await _context.Voyage.Where(v => v.Proprietaires.Contains(user)).Select(v=> new VoyageDTO(v, true)).ToListAsync()
+                );
             }
 
             return data;
@@ -58,14 +58,14 @@ namespace Jmepromeneavecmesvalises_API.Controllers
 
         // GET: api/Voyages/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Voyage>> GetVoyage(int id)
+        public async Task<ActionResult<VoyageDTO>> GetVoyage(int id)
         {
             if (_context.Voyage == null)
             {
                 return NotFound();
             }
 
-            var voyage = await _context.Voyage.FindAsync(id);
+            Voyage voyage = await _context.Voyage.FindAsync(id);
             
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
@@ -81,7 +81,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 return NotFound();
             }
 
-            return voyage;
+            return new VoyageDTO(voyage, true);
         }
 
         // PUT: api/Voyages/5
@@ -93,7 +93,18 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             {
                 return BadRequest();
             }
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            user = await _context.Users.FindAsync(userId);
 
+            Voyage  voyageOriginal = await _context.Voyage.FindAsync(id);
+
+            if (!voyageOriginal.Proprietaires.Contains(user))
+            {
+                return StatusCode(StatusCodes.Status400BadRequest,
+                    new { Message = "la voyage n'apartient pas a cette utilisateur" });
+            }
+                
             _context.Entry(voyage).State = EntityState.Modified;
 
             try
