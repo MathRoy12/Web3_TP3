@@ -1,0 +1,6 @@
+<div class="cards">
+  <div class="card" *ngFor="let i of voyages">
+    <h3>{{i.destination}}</h3>
+    <img [src]="i.img" alt="{{i.destination}}">
+  </div>
+</div>

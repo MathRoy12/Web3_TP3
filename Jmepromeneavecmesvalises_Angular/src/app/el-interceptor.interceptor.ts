@@ -20,7 +20,7 @@ export class ElInterceptor implements HttpInterceptor {
     if (url.hostname == 'localhost') {
       request = request.clone({
         setHeaders: {
-          'Aurorization': 'Bearer ' + token
+          'Authorization': 'Bearer ' + token
         }
       })
     }

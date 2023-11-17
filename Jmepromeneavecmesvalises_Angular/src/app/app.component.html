@@ -7,5 +7,7 @@
   <button *ngIf="localStorage['token'] != undefined" (click)="Disconnect()">Disconnect</button>
 </header>
 <main>
-<router-outlet></router-outlet>
+  <div class="wrapper">
+    <router-outlet></router-outlet>
+  </div>
 </main>

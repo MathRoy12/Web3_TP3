@@ -38,10 +38,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 return NotFound();
             }
 
-            List<VoyageDTO> data = await _context.Voyage
-                .Where(v => v.IsPublic)
-                .Select(v=>new VoyageDTO(v, false))
-                .ToListAsync();
+            List<VoyageDTO> data = new List<VoyageDTO>();
             
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
@@ -49,8 +46,19 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             if (user != null)
             {
                 data.InsertRange(0,
-                    await _context.Voyage.Where(v => v.Proprietaires.Contains(user)).Select(v=> new VoyageDTO(v, true)).ToListAsync()
+                    await _context.Voyage
+                        .Where(v => v.Proprietaires.Contains(user) || v.IsPublic)
+                        .Select(v=> new VoyageDTO(v, v.Proprietaires.Contains(user)))
+                        .ToListAsync()
                 );
+            }
+            else
+            {
+                data.InsertRange(0, await _context.Voyage
+                    .Where(v => v.IsPublic)
+                    .Select(v => new VoyageDTO(v, false))
+                    .ToListAsync());
+
             }
 
             return data;
@@ -72,7 +80,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
 
             if (!voyage.Proprietaires.Contains(user))
             {
-                return StatusCode(StatusCodes.Status400BadRequest,
+                return StatusCode(StatusCodes.Status401Unauthorized,
                     new { Message = "la voyage n'apartient pas a cette utilisateur" });
             }
 
@@ -101,10 +109,10 @@ namespace Jmepromeneavecmesvalises_API.Controllers
 
             if (!voyageOriginal.Proprietaires.Contains(user))
             {
-                return StatusCode(StatusCodes.Status400BadRequest,
+                return StatusCode(StatusCodes.Status401Unauthorized,
                     new { Message = "la voyage n'apartient pas a cette utilisateur" });
             }
-                
+            
             _context.Entry(voyage).State = EntityState.Modified;
 
             try
@@ -129,7 +137,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
         // POST: api/Voyages
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Voyage>> PostVoyage(Voyage voyage)
+        public async Task<ActionResult<VoyageDTO>> PostVoyage(Voyage voyage)
         {
             if (_context.Voyage == null)
             {
@@ -141,7 +149,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
 
             if (user == null)
             {
-                return StatusCode(StatusCodes.Status400BadRequest,
+                return StatusCode(StatusCodes.Status401Unauthorized,
                     new { Message = "Il n'y a aucun utilisateur de connecter" });
             }
             
@@ -149,7 +157,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             _context.Voyage.Add(voyage);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetVoyage", new { id = voyage.Id }, voyage);
+            return new VoyageDTO(voyage, true);
         }
 
         // DELETE: api/Voyages/5
