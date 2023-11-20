@@ -28,4 +28,13 @@ export class HttpService {
     let res :Voyage[] = await lastValueFrom(this.http.get<Voyage[]>(this.domain + "api/Voyages"));
     return res;
   }
+
+  async CreerNouveauVoyage(voyage:Voyage){
+    let res:Voyage = await lastValueFrom(this.http.post<Voyage>(this.domain + "api/Voyages", voyage));
+    return res;
+  }
+
+  async delete(id:number){
+    await lastValueFrom(this.http.delete(this.domain + "api/Voyages/" + id.toString()))
+  }
 }

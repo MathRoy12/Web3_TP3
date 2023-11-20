@@ -13,6 +13,10 @@ public class VoyageDTO
     public bool IsPublic { get; set; }
     public bool IsOwner { get; set; }
 
+    public VoyageDTO()
+    {
+    }
+
     public VoyageDTO(Voyage voyage, bool isOwner)
     {
         Id = voyage.Id;

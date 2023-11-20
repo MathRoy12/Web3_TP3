@@ -1,6 +1,27 @@
 <div class="cards">
-  <div class="card" *ngFor="let i of voyages">
-    <h3>{{i.destination}}</h3>
-    <img [src]="i.img" alt="{{i.destination}}">
-  </div>
+    <div class="flex">
+        <div class="formCard" *ngIf="localStorage['token'] != undefined">
+            <h2>Crée toi un voyage</h2>
+            <form>
+                <div class="formContent">
+                    <label for="destination">Destination</label>
+                    <input [(ngModel)]="newVoyage.destination" type="text" id="destination" name="destination">
+                </div>
+                <div class="formContent">
+                    <label for="image">Image (facultatif)</label>
+                    <textarea [(ngModel)]="newVoyage.img" id="image" name="image"></textarea>
+                </div>
+                <div class="formContent">
+                    <label for="public">Public</label>
+                    <input [(ngModel)]="newVoyage.isPublic" type="checkbox" id="public" name="public">
+                </div>
+                <button (click)="creerVoyage()">Créer</button>
+            </form>
+        </div>
+    </div>
+    <div class="card" *ngFor="let i of voyages">
+        <img class="icon" (click)="delete(i.id)" *ngIf="i.isOwner" src="assets/delete.svg" alt="trucmuch">
+        <h3>{{i.destination}}</h3>
+        <img [src]="i.img" alt="{{i.destination}}">
+    </div>
 </div>

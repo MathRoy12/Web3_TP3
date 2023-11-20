@@ -39,7 +39,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             }
 
             List<VoyageDTO> data = new List<VoyageDTO>();
-            
+
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
 
@@ -48,7 +48,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 data.InsertRange(0,
                     await _context.Voyage
                         .Where(v => v.Proprietaires.Contains(user) || v.IsPublic)
-                        .Select(v=> new VoyageDTO(v, v.Proprietaires.Contains(user)))
+                        .Select(v => new VoyageDTO(v, v.Proprietaires.Contains(user)))
                         .ToListAsync()
                 );
             }
@@ -58,7 +58,6 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                     .Where(v => v.IsPublic)
                     .Select(v => new VoyageDTO(v, false))
                     .ToListAsync());
-
             }
 
             return data;
@@ -74,7 +73,7 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             }
 
             Voyage voyage = await _context.Voyage.FindAsync(id);
-            
+
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
 
@@ -101,18 +100,18 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             {
                 return BadRequest();
             }
-            
+
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
 
-            Voyage  voyageOriginal = await _context.Voyage.FindAsync(id);
+            Voyage voyageOriginal = await _context.Voyage.FindAsync(id);
 
             if (!voyageOriginal.Proprietaires.Contains(user))
             {
                 return StatusCode(StatusCodes.Status401Unauthorized,
                     new { Message = "la voyage n'apartient pas a cette utilisateur" });
             }
-            
+
             _context.Entry(voyage).State = EntityState.Modified;
 
             try
@@ -137,13 +136,13 @@ namespace Jmepromeneavecmesvalises_API.Controllers
         // POST: api/Voyages
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<VoyageDTO>> PostVoyage(Voyage voyage)
+        public async Task<ActionResult<VoyageDTO>> PostVoyage(VoyageDTO DTO)
         {
             if (_context.Voyage == null)
             {
                 return Problem("Entity set 'Jmepromeneavecmesvalises_APIContext.Voyage'  is null.");
             }
-            
+
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
 
@@ -152,8 +151,13 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 return StatusCode(StatusCodes.Status401Unauthorized,
                     new { Message = "Il n'y a aucun utilisateur de connecter" });
             }
-            
-            voyage.Proprietaires.Add(user);
+
+            Voyage voyage = new Voyage(DTO);
+            if (DTO.IsOwner)
+            {
+                voyage.Proprietaires.Add(user);
+            }
+
             _context.Voyage.Add(voyage);
             await _context.SaveChangesAsync();
 
@@ -169,10 +173,25 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                 return NotFound();
             }
 
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized,
+                    new { Message = "Il n'y a aucun utilisateur de connecter" });
+            }
+
             var voyage = await _context.Voyage.FindAsync(id);
             if (voyage == null)
             {
                 return NotFound();
+            }
+
+            if (!voyage.Proprietaires.Contains(user))
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized,
+                    new { Message = "Le voyage n'apartient pas a cet utilisateur" });
             }
 
             _context.Voyage.Remove(voyage);

@@ -13,4 +13,16 @@ public class Voyage
     public bool IsPublic { get; set; }
 
     [JsonIgnore] public virtual List<User> Proprietaires { get; set; } = new List<User>();
+
+    public Voyage()
+    {
+    }
+
+    public Voyage(VoyageDTO voyageDTO)
+    {
+        Id = voyageDTO.Id;
+        Destination = voyageDTO.Destination;
+        Img = voyageDTO.Img;
+        IsPublic = voyageDTO.IsPublic;
+    }
 }
