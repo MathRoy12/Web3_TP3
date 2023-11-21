@@ -3,7 +3,7 @@ import {RegisterDTO} from "./RegisterDTO";
 import {lastValueFrom} from "rxjs";
 import {HttpClient, HttpHandler} from "@angular/common/http";
 import {LoginDTO} from "./LoginDTO";
-import {Voyage} from "./Voyage";
+import {ShareDTO, Voyage} from "./Voyage";
 
 @Injectable({
   providedIn: 'root'
@@ -36,5 +36,9 @@ export class HttpService {
 
   async delete(id:number){
     await lastValueFrom(this.http.delete(this.domain + "api/Voyages/" + id.toString()))
+  }
+
+  async share(DTO:ShareDTO){
+    await lastValueFrom(this.http.put(this.domain + "api/Voyages/" + DTO.id.toString(),DTO))
   }
 }

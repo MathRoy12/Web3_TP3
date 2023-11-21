@@ -94,12 +94,10 @@ namespace Jmepromeneavecmesvalises_API.Controllers
         // PUT: api/Voyages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVoyage(int id, Voyage voyage)
+        public async Task<IActionResult> PutVoyage(int id, PutVoyageDTO DTO)
         {
-            if (id != voyage.Id)
-            {
+            if (id != DTO.Id)
                 return BadRequest();
-            }
 
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             user = await _context.Users.FindAsync(userId);
@@ -112,6 +110,23 @@ namespace Jmepromeneavecmesvalises_API.Controllers
                     new { Message = "la voyage n'apartient pas a cette utilisateur" });
             }
 
+            Voyage? voyage = await _context.Voyage.FindAsync(id);
+            
+            if (voyage == null)
+                return BadRequest();
+            
+            voyage.Destination = DTO.Destination;
+            voyage.Img = DTO.Img;
+            voyage.IsPublic = DTO.IsPublic;
+
+            if (DTO.NewUserEmail == null)
+                return BadRequest();
+            
+            User? newUser = await _userManager.FindByEmailAsync(DTO.NewUserEmail);
+            
+            if (newUser != null)
+                voyage.Proprietaires.Add(newUser);
+
             _context.Entry(voyage).State = EntityState.Modified;
 
             try
@@ -121,13 +136,9 @@ namespace Jmepromeneavecmesvalises_API.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!VoyageExists(id))
-                {
                     return NotFound();
-                }
                 else
-                {
                     throw;
-                }
             }
 
             return NoContent();

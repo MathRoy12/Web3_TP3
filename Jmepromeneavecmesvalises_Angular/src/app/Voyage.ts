@@ -6,3 +6,12 @@ export class Voyage{
               public isOwner:boolean) {
   }
 }
+
+export class ShareDTO{
+  constructor(public id:number,
+              public img:string,
+              public destination:string,
+              public isPublic:boolean,
+              public newUserEmail:string) {
+  }
+}
