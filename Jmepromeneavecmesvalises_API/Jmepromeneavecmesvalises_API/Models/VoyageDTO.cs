@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Jmepromeneavecmesvalises_API.Models;
+﻿namespace Jmepromeneavecmesvalises_API.Models;
 
 public class VoyageDTO
 {

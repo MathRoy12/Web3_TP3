@@ -1,6 +1,5 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Jmepromeneavecmesvalises_API.Data;
 using Jmepromeneavecmesvalises_API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
